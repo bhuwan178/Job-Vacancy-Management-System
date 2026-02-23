@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Khalti Payment</title>
+    <script src="https://khalti.com/static/khalti-checkout.js"></script>
+</head>
+<body>
+
+<h2>Pay with Khalti</h2>
+<button id="pay-button">Pay Now</button>
+
+<script>
+var config = {
+    publicKey: "bd341b7ec29847abb5eeb489adb4f74f", // Your public key
+    productIdentity: "123456",
+    productName: "Test Product",
+    productUrl: "http://yourwebsite.com/product",
+    eventHandler: {
+        onSuccess (payload) {
+            console.log("Payment successful", payload);
+            // Send token to backend for verification
+            fetch("verify.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({token: payload.token, amount: payload.amount})
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert("Payment verified: " + JSON.stringify(data));
+            })
+            .catch(err => console.error(err));
+        },
+        onError (error) {
+            console.log("Payment error", error);
+            alert("Payment failed. Check console for details.");
+        },
+        onClose () {
+            console.log("Widget closed");
+        }
+    }
+};
+
+var checkout = new KhaltiCheckout(config);
+
+document.getElementById("pay-button").onclick = function () {
+    checkout.show({amount: 1000}); // Amount in paisa (1000 paisa = 10 NPR)
+};
+</script>
+
+</body>
+</html>
